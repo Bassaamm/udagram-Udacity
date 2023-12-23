@@ -40,7 +40,7 @@ jobs:
           name: API Build
           command: |
             npm run api:build
-  # deploy step will run only after manual approval
+  # deploy step will run after manual approval
   deploy:
     docker:
       - image: "cimg/base:stable"
