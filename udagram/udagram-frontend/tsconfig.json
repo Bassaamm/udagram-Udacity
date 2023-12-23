@@ -1,4 +1,8 @@
 {
+  "angularCompilerOptions": {
+    // ...
+    "disableTypeScriptVersionCheck": true
+  },
   "compileOnSave": false,
   "compilerOptions": {
     "baseUrl": "./",
@@ -11,17 +15,9 @@
     "experimentalDecorators": true,
     "importHelpers": true,
     "target": "es5",
-    "typeRoots": [
-      "node_modules/@types"
-    ],
-    "lib": [
-      "es2018",
-      "dom"
-    ],
+    "typeRoots": ["node_modules/@types"],
+    "lib": ["es2018", "dom"],
     "skipLibCheck": true
   },
-  "exclude": [
-    "node_modules",
-    "typings"
-  ]
+  "exclude": ["node_modules", "typings"]
 }
