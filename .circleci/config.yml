@@ -1,63 +1,72 @@
 version: 2.1
 orbs:
-  node: circleci/node@5.1.1
+  # orgs contain basc recipes and reproducible actions (install node, aws, etc.)
+  node: circleci/node@5.0.2
   eb: circleci/aws-elastic-beanstalk@2.0.1
-  aws-cli: circleci/aws-cli@4.1.2
+  aws-cli: circleci/aws-cli@3.1.1
+  # different jobs are calles later in the workflows sections
 jobs:
   build:
     docker:
-      - image: "cimg/node:14.15.0"
+      # the base image can run most needed actions with orbs
+      - image: "cimg/node:14.15"
     steps:
+      # install node and checkout code
       - node/install:
-          node-version: "14.15.0"
+          node-version: "14.15"
       - checkout
-      ## Install front-end dependencies
+      # Use root level package.json to install dependencies in the frontend app
       - run:
-          name: Front-end dependencies
+          name: Install Front-End Dependencies
           command: |
+            echo "NODE --version" 
+            echo $(node --version)
+            echo "NPM --version" 
+            echo $(npm --version)
             npm run frontend:install
-      ## Install back-end dependencies
       - run:
-          name: Back-end Dependencies
+          name: Install API Dependencies
           command: |
             npm run api:install
-      ## Build the front-end
       - run:
-          name: Front-end Build
+          name: Front-End Lint
+          command: |
+            npm run frontend:lint
+      - run:
+          name: Front-End Build
           command: |
             npm run frontend:build
-      # Build the back-end
       - run:
-          name: Back-end Build
+          name: API Build
           command: |
             npm run api:build
+  # deploy step will run only after manual approval
   deploy:
     docker:
       - image: "cimg/base:stable"
+      # more setup needed for aws, node, elastic beanstalk
     steps:
       - node/install:
           node-version: "14.15"
       - eb/setup
       - aws-cli/setup
       - checkout
-      # Deploy back-end &  front-end
       - run:
-          name: Deployment
+          name: Deploy App
           command: |
-            npm run api:deploy
-            npm run frontend:deploy
+            npm run deploy
 workflows:
-  deploy:
+  udagram:
     jobs:
       - build
       - hold:
-          type: approval
-          requires:
-            - build
           filters:
             branches:
               only:
                 - master
+          type: approval
+          requires:
+            - build
       - deploy:
           requires:
             - hold
